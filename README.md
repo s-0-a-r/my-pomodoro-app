@@ -1,36 +1,175 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Pomodoro Timer App
 
-## Getting Started
+ポモドーロテクニックを活用した生産性向上タイマーアプリケーションです。デフォルトモードと計画モードの2つのモードを提供し、作業時間と休憩時間を効果的に管理できます。
 
-First, run the development server:
+## 主な機能
+
+### デフォルトポモドーロモード
+- 25分の作業タイマーと5分の休憩タイマー
+- タイマー完了時の音声通知（5秒間のビープ音）
+- 自動繰り返し機能（作業→休憩→作業...）
+- 一時停止・再開・停止機能
+- カスタマイズ可能な作業時間（1〜60分）と休憩時間（1〜15分）
+
+### 計画ポモドーロモード
+- **時刻ベースのポモドーロ計画**: 開始時刻・作業終了時刻・休憩終了時刻を個別に指定
+- **時刻の自動入力**:
+  - 開始時刻を入力すると、作業終了時刻と休憩終了時刻が自動計算される
+  - 作業終了時刻を変更すると、休憩終了時刻が自動計算される
+- **自動開始機能**: 自動リピートが有効な場合、設定時刻になると自動的にタイマーを開始
+- **正確な時刻管理**: 現在時刻と終了時刻の差分を計算し、設定時刻きっかりに終了
+- **複数のポモドーロサイクル**: 事前に複数のポモドーロを計画可能
+- **タスク名の設定**: 各サイクルにタスク名を設定してタスクを可視化
+- **実行中の強調表示**: 現在実行中のポモドーロをハイライト表示
+- **時刻の連続設定**: 2つ目以降のポモドーロは前の休憩終了時刻がデフォルト値として設定
+
+### 共通機能
+- **自動リピート**: 作業と休憩を自動的に繰り返す（オン/オフ可能）
+- **音量調整**: 0〜100%で通知音の音量を調整
+- **音量テスト**: 設定した音量を確認できるテストボタン
+- **時間調整**: 1分・5分・25分単位での増減
+- **設定の永続化**: localStorageに設定と計画を自動保存
+- **デフォルト値へのリセット**: ワンクリックで設定を初期値に戻す
+- **視認性の向上**: 高コントラストの配色で見やすいUI
+
+## 技術スタック
+
+- **フレームワーク**: Next.js 16 (App Router)
+- **言語**: TypeScript
+- **UI**: React 19
+- **状態管理**: XState v5
+- **スタイリング**: Tailwind CSS v4
+- **テスト**: Jest + React Testing Library
+- **音声**: Web Audio API
+
+## セットアップ
+
+### 前提条件
+- Node.js 20.x以上
+
+### インストール
 
 ```bash
+# 依存関係のインストール
+npm install
+
+# 開発サーバーの起動
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+ブラウザで [http://localhost:3000](http://localhost:3000) を開いてアプリケーションにアクセスします。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## テスト
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+# すべてのテストを実行
+npm test
 
-## Learn More
+# watchモードでテストを実行
+npm run test:watch
+```
 
-To learn more about Next.js, take a look at the following resources:
+現在のテストカバレッジ: **48テスト、全て成功**
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## ビルド
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# プロダクションビルド
+npm run build
 
-## Deploy on Vercel
+# プロダクションサーバーの起動
+npm start
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## プロジェクト構造
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+app/
+├── components/              # Reactコンポーネント
+│   ├── TimerDisplay.tsx     # タイマー表示
+│   ├── ControlButtons.tsx   # 制御ボタン
+│   ├── SettingsPanel.tsx    # 設定パネル
+│   ├── DefaultMode.tsx      # デフォルトモード
+│   ├── PlannedMode.tsx      # 計画モード（時刻自動入力機能付き）
+│   ├── ModeSwitch.tsx       # モード切替
+│   └── __tests__/           # コンポーネントテスト
+├── machines/                # XState状態マシン
+│   ├── pomodoroMachine.ts   # メイン状態マシン
+│   └── __tests__/           # 状態マシンテスト
+├── hooks/                   # カスタムReactフック
+│   └── usePomodoro.ts       # ポモドーロフック
+├── utils/                   # ユーティリティ関数
+│   ├── audio.ts             # 音声再生（Web Audio API）
+│   ├── storage.ts           # localStorage管理
+│   ├── time.ts              # 時刻計算
+│   └── __tests__/           # ユーティリティテスト
+├── types/                   # TypeScript型定義
+│   └── pomodoro.ts          # 型定義とデフォルト値
+└── page.tsx                 # メインページ
+```
+
+## 使い方
+
+### デフォルトモード
+1. アプリを開くとデフォルトモードで起動します
+2. 必要に応じて設定パネルで作業時間・休憩時間を調整
+3. 「Start」ボタンをクリックしてタイマーを開始
+4. 作業完了後、自動的に休憩タイマーが開始されます（自動リピートがオンの場合）
+
+### 計画モード
+1. 「Planned Mode」ボタンをクリックしてモードを切り替え
+2. タスク名と開始時刻を入力（作業終了・休憩終了時刻は自動入力）
+3. 必要に応じて自動入力された時刻を調整
+4. 「Add Pomodoro」ボタンでポモドーロを追加
+5. 複数のポモドーロを追加して一日の計画を作成
+6. 自動リピートがオンの場合、設定時刻になると自動的に開始
+7. または「Start」ボタンで手動開始
+
+## 受け入れテスト
+
+非エンジニア向けのシナリオテストケースは [`docs/atdd/scenario-test-case.tsv`](docs/atdd/scenario-test-case.tsv) ファイルに記載されています。
+
+ATDD（受け入れテスト駆動開発）の詳細なドキュメントは [`docs/atdd/`](docs/atdd/) ディレクトリを参照してください。
+
+- **テストケース総数**: 37件
+- **主要カテゴリ**:
+  - デフォルトモード（基本操作・タイマー完了）
+  - 設定変更
+  - モード切替
+  - 計画モード（ポモドーロ管理・タイマー実行・表示）
+  - データ永続化
+
+## 開発方針
+
+このプロジェクトは以下の方針を採用しています：
+
+1. **状態管理**: XState v5を使用した明確な状態遷移管理
+2. **テスト駆動開発**: Jest + React Testing Libraryによる包括的なテスト
+3. **型安全性**: TypeScriptによる厳格な型チェック
+4. **データ永続化**: localStorageによる設定とデータの自動保存
+5. **ユーザビリティ**:
+   - シンプルで直感的なUI/UX
+   - 高コントラストで視認性の高いデザイン
+   - 時刻の自動入力による入力負担の軽減
+6. **アクセシビリティ**: 色覚に配慮した配色とコントラスト比
+
+## 主な技術的特徴
+
+### XState v5による状態管理
+- 4つの状態: idle（待機）、running（実行中）、paused（一時停止）、completed（完了）
+- デフォルトモードと計画モードで異なるタイマー制御
+- 計画モードでは現在時刻と終了時刻の差分を計算
+
+### 自動機能
+- **自動開始**: 10秒ごとに時刻をチェックし、開始時刻になると自動開始
+- **自動リピート**: 作業→休憩→次のポモドーロを自動的に進行
+- **自動入力**: 開始時刻から作業終了・休憩終了時刻を自動計算
+
+### Web Audio API
+- OscillatorNodeとGainNodeを使用したビープ音生成
+- フェードアウト効果付き
+- 音量調整機能
+
+## ライセンス
+
+MIT
